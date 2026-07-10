@@ -15,7 +15,18 @@ function sameId(a, b) {
 async function questionsInAttemptOrder(questionIds) {
   const questions = await Question.find({ _id: { $in: questionIds } });
   const byId = new Map(questions.map((question) => [String(question._id), question]));
-  return questionIds.map((id) => byId.get(String(id))).filter(Boolean);
+  const ordered = questionIds.map((id) => byId.get(String(id)));
+  if (ordered.some((question) => !question)) {
+    const err = new Error('Soal untuk attempt tidak lengkap');
+    err.status = 400;
+    throw err;
+  }
+  return ordered;
+}
+
+function handleQuizError(err, res, next) {
+  if (err.status === 400) return res.sendStatus(400);
+  next(err);
 }
 
 router.post('/:materialId/start', requireAuth, async (req, res, next) => {
@@ -69,7 +80,7 @@ router.get('/:attemptId', requireAuth, async (req, res, next) => {
 
     res.render('quiz/take', { attempt, questions, endsAt });
   } catch (err) {
-    next(err);
+    handleQuizError(err, res, next);
   }
 });
 
@@ -105,7 +116,7 @@ router.post('/:attemptId/submit', requireAuth, async (req, res, next) => {
 
     res.redirect(`/quiz/${attempt._id}/result`);
   } catch (err) {
-    next(err);
+    handleQuizError(err, res, next);
   }
 });
 
@@ -114,6 +125,7 @@ router.get('/:attemptId/result', requireAuth, async (req, res, next) => {
     const attempt = await Attempt.findById(req.params.attemptId);
     if (!attempt) return res.sendStatus(404);
     if (!sameId(attempt.userId, req.session.user.id)) return res.sendStatus(403);
+    if (attempt.status !== 'submitted') return res.redirect(`/quiz/${attempt._id}`);
 
     const material = await Material.findById(attempt.materialId);
     res.render('quiz/result', { attempt, material });

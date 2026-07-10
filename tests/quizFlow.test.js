@@ -266,6 +266,58 @@ describe('user materials and quiz flow', () => {
     });
   });
 
+  it('redirects in_progress result to quiz page', async () => {
+    const attempts = [
+      {
+        _id: 'attempt-1',
+        userId: 'user-1',
+        materialId: 'ready-1',
+        questionIds: makeQuestions().map((question) => question._id),
+        answers: [],
+        score: null,
+        status: 'in_progress',
+        startedAt: new Date(),
+      },
+    ];
+    const { app } = mockApp({ attempts });
+
+    await withServer(app, async (baseUrl) => {
+      const cookie = await login(baseUrl);
+      const response = await fetch(`${baseUrl}/quiz/attempt-1/result`, {
+        redirect: 'manual',
+        headers: { cookie },
+      });
+
+      assert.equal(response.status, 302);
+      assert.equal(response.headers.get('location'), '/quiz/attempt-1');
+    });
+  });
+
+  it('returns 400 when attempt references missing questions', async () => {
+    const attempts = [
+      {
+        _id: 'attempt-1',
+        userId: 'user-1',
+        materialId: 'ready-1',
+        questionIds: ['q1', 'missing-q'],
+        answers: [],
+        score: null,
+        status: 'in_progress',
+        startedAt: new Date(),
+      },
+    ];
+    const { app } = mockApp({ attempts, questions: makeQuestions().slice(0, 1) });
+
+    await withServer(app, async (baseUrl) => {
+      const cookie = await login(baseUrl);
+      const take = await fetch(`${baseUrl}/quiz/attempt-1`, { headers: { cookie } });
+      const submit = await postForm(baseUrl, '/quiz/attempt-1/submit', { 'answers[0]': 'A' }, cookie);
+
+      assert.equal(take.status, 400);
+      assert.equal(submit.status, 400);
+    });
+  });
+
   it('rejects attempts owned by another user', async () => {
     const attempts = [
       {
