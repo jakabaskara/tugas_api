@@ -1,3 +1,11 @@
 <nav>
   <a href="/">Quiz Materi AI</a>
+  <% if (currentUser) { %>
+    <a href="/materials">Materi</a>
+    <a href="/reports/me">Riwayat</a>
+    <% if (currentUser.role === 'admin') { %>
+      <a href="/admin/materials">Admin Materi</a>
+      <a href="/admin/reports">Admin Laporan</a>
+    <% } %>
+  <% } %>
 </nav>

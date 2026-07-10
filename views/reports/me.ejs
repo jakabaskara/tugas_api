@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <%- include('../partials/head') %>
+  <title>Riwayat Kuis - Quiz Materi AI</title>
+</head>
+<body>
+  <%- include('../partials/nav') %>
+  <main style="max-width: 900px; margin: 48px auto;">
+    <h1>Riwayat Kuis Saya</h1>
+    <%- include('../partials/flash') %>
+
+    <% if (!attempts.length) { %>
+      <p>Belum ada kuis yang dikumpulkan.</p>
+    <% } else { %>
+      <table>
+        <thead>
+          <tr>
+            <th>Materi</th>
+            <th>Skor</th>
+            <th>Benar</th>
+            <th>Salah/kosong</th>
+            <th>Tanggal</th>
+            <th>Timeout</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% attempts.forEach(function(attempt) { %>
+            <tr>
+              <td><%= attempt.materialId ? attempt.materialId.title : 'Materi' %></td>
+              <td><%= attempt.score %></td>
+              <td><%= attempt.correctCount %></td>
+              <td><%= attempt.wrongCount %></td>
+              <td><%= attempt.submittedAt ? attempt.submittedAt.toLocaleString('id-ID') : '-' %></td>
+              <td>
+                <% if (attempt.timedOut) { %>
+                  <span class="status status-failed">Timeout</span>
+                <% } else { %>
+                  <span class="status status-ready">Tepat waktu</span>
+                <% } %>
+              </td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    <% } %>
+  </main>
+</body>
+</html>

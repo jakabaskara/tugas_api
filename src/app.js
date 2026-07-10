@@ -7,6 +7,7 @@ const config = require('./config');
 const authRoutes = require('./routes/auth');
 const materialsRoutes = require('./routes/materials');
 const quizRoutes = require('./routes/quiz');
+const reportsRoutes = require('./routes/reports');
 const adminRoutes = require('./routes/admin');
 const { requireAuth, requireAdmin } = require('./middleware/auth');
 
@@ -42,6 +43,7 @@ function createApp() {
   app.use('/', authRoutes);
   app.use('/', materialsRoutes);
   app.use('/quiz', quizRoutes);
+  app.use('/reports', requireAuth, reportsRoutes);
   app.use('/admin', requireAuth, requireAdmin, adminRoutes);
 
   return app;

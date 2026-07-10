@@ -2,8 +2,11 @@ const fs = require('fs');
 const path = require('path');
 const express = require('express');
 const multer = require('multer');
+const mongoose = require('mongoose');
 const Material = require('../models/Material');
 const Question = require('../models/Question');
+const Attempt = require('../models/Attempt');
+const User = require('../models/User');
 const { extractPdfText } = require('../services/pdf');
 const { generateQuestionsFromText } = require('../services/openaiQuestions');
 
@@ -19,6 +22,10 @@ const upload = multer({
   }),
 });
 
+function escapeRegex(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 router.get('/materials', async (_req, res, next) => {
   try {
     const materials = await Material.find().sort({ createdAt: -1 });
@@ -30,6 +37,38 @@ router.get('/materials', async (_req, res, next) => {
     );
 
     res.render('admin/materials', { rows });
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.get('/reports', async (req, res, next) => {
+  try {
+    const filters = {
+      user: String(req.query.user || '').trim(),
+      material: String(req.query.material || '').trim(),
+    };
+    const query = { status: 'submitted' };
+
+    if (filters.material) {
+      query.materialId = filters.material;
+    }
+
+    if (filters.user) {
+      if (mongoose.isValidObjectId(filters.user)) {
+        query.userId = filters.user;
+      } else {
+        const users = await User.find({ username: { $regex: new RegExp(escapeRegex(filters.user), 'i') } });
+        query.userId = { $in: users.map((user) => user._id) };
+      }
+    }
+
+    const attempts = await Attempt.find(query)
+      .populate('userId', 'username')
+      .populate('materialId', 'title')
+      .sort({ submittedAt: -1 });
+
+    res.render('admin/reports', { attempts, filters });
   } catch (err) {
     next(err);
   }
