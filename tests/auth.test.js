@@ -45,6 +45,15 @@ function mockAppWithUsers(users = new Map()) {
         }
       };
     }
+    if (request === '../models/Material') {
+      return class Material {
+        static find() {
+          return {
+            sort: async () => [],
+          };
+        }
+      };
+    }
     return originalLoad.call(this, request, parent, isMain);
   };
 
@@ -146,7 +155,7 @@ describe('auth routes', () => {
 
       const materials = await fetch(`${baseUrl}/materials`, { headers: { cookie } });
       assert.equal(materials.status, 200);
-      assert.equal(await materials.text(), 'materials ok');
+      assert.match(await materials.text(), /Belum ada materi/);
     });
   });
 
