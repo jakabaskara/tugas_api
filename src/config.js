@@ -9,7 +9,7 @@ function required(name) {
 module.exports = {
   port: Number(process.env.PORT || 3000),
   mongodbUri: process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/tugas_api',
-  sessionSecret: process.env.SESSION_SECRET || 'dev-session-secret-change-me',
+  sessionSecret: required('SESSION_SECRET'),
   openaiApiKey: process.env.OPENAI_API_KEY || '',
   adminUsername: process.env.ADMIN_USERNAME || 'admin',
   adminPassword: process.env.ADMIN_PASSWORD || 'admin123',
