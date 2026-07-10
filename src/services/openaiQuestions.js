@@ -36,19 +36,27 @@ async function callOnce(client, text) {
   return parseQuestions(content);
 }
 
+async function callOnceSafe(client, text) {
+  try {
+    return await callOnce(client, text);
+  } catch {
+    return null;
+  }
+}
+
 async function generateQuestionsFromText(text) {
   if (!config.openaiApiKey) throw new Error('Missing env: OPENAI_API_KEY');
 
   const client = new OpenAI({ apiKey: config.openaiApiKey });
   const clipped = String(text || '').slice(0, config.maxPdfChars);
-  let questions = await callOnce(client, clipped);
+  let questions = await callOnceSafe(client, clipped);
 
-  if (questions.length < config.questionsPerMaterial) {
-    questions = await callOnce(client, clipped);
+  if (!questions || questions.length < config.questionsPerMaterial) {
+    questions = await callOnceSafe(client, clipped);
   }
 
-  if (questions.length < config.questionsPerMaterial) {
-    throw new Error(`Hanya mendapat ${questions.length} soal valid dari AI`);
+  if (!questions || questions.length < config.questionsPerMaterial) {
+    throw new Error(`Hanya mendapat ${questions?.length ?? 0} soal valid dari AI`);
   }
 
   return questions.slice(0, config.questionsPerMaterial);

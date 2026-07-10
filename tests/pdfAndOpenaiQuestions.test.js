@@ -84,4 +84,76 @@ describe('generateQuestionsFromText', () => {
     assert.equal(calls[0].response_format.type, 'json_object');
     assert.equal(calls[0].messages[1].content.match(/Materi /g).length, 8571);
   });
+
+  it('retries once on malformed JSON then returns 100 questions', async () => {
+    process.env.SESSION_SECRET = 'test';
+    process.env.OPENAI_API_KEY = 'test-key';
+    const calls = [];
+
+    class FakeOpenAI {
+      constructor() {
+        this.chat = {
+          completions: {
+            create: async () => {
+              calls.push(1);
+              if (calls.length === 1) {
+                return { choices: [{ message: { content: 'not-json' } }] };
+              }
+              const questions = Array.from({ length: 100 }, (_, i) => ({
+                text: `Soal ${i + 1}`,
+                options: { A: 'a', B: 'b', C: 'c', D: 'd' },
+                correctAnswer: 'A',
+              }));
+              return {
+                choices: [{ message: { content: JSON.stringify({ questions }) } }],
+              };
+            },
+          },
+        };
+      }
+    }
+
+    Module._load = function patchedLoad(request, parent, isMain) {
+      if (request === 'openai') return FakeOpenAI;
+      return originalLoad.call(this, request, parent, isMain);
+    };
+
+    const { generateQuestionsFromText } = require('../src/services/openaiQuestions');
+    const questions = await generateQuestionsFromText('Materi fotosintesis');
+
+    assert.equal(calls.length, 2);
+    assert.equal(questions.length, 100);
+  });
+
+  it('throws after retry when OpenAI returns invalid JSON twice', async () => {
+    process.env.SESSION_SECRET = 'test';
+    process.env.OPENAI_API_KEY = 'test-key';
+    const calls = [];
+
+    class FakeOpenAI {
+      constructor() {
+        this.chat = {
+          completions: {
+            create: async () => {
+              calls.push(1);
+              return { choices: [{ message: { content: '{bad json' } }] };
+            },
+          },
+        };
+      }
+    }
+
+    Module._load = function patchedLoad(request, parent, isMain) {
+      if (request === 'openai') return FakeOpenAI;
+      return originalLoad.call(this, request, parent, isMain);
+    };
+
+    const { generateQuestionsFromText } = require('../src/services/openaiQuestions');
+
+    await assert.rejects(
+      generateQuestionsFromText('Materi fotosintesis'),
+      /Hanya mendapat 0 soal valid dari AI/
+    );
+    assert.equal(calls.length, 2);
+  });
 });
