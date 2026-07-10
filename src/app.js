@@ -1,6 +1,7 @@
 const path = require('path');
 const express = require('express');
 const session = require('express-session');
+const MongoStore = require('connect-mongo');
 const flash = require('connect-flash');
 const config = require('./config');
 
@@ -19,9 +20,14 @@ function createApp() {
       secret: config.sessionSecret,
       resave: false,
       saveUninitialized: false,
+      store: MongoStore.create({ mongoUrl: config.mongodbUri }),
     })
   );
   app.use(flash());
+  app.use((req, res, next) => {
+    res.locals.currentUser = req.session.user || null;
+    next();
+  });
 
   app.get('/health', (_req, res) => {
     res.send('ok');
