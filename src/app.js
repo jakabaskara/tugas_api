@@ -4,6 +4,8 @@ const session = require('express-session');
 const MongoStore = require('connect-mongo');
 const flash = require('connect-flash');
 const config = require('./config');
+const authRoutes = require('./routes/auth');
+const materialsRoutes = require('./routes/materials');
 
 function createApp() {
   const app = express();
@@ -26,12 +28,16 @@ function createApp() {
   app.use(flash());
   app.use((req, res, next) => {
     res.locals.currentUser = req.session.user || null;
+    res.locals.messages = req.flash();
     next();
   });
 
   app.get('/health', (_req, res) => {
     res.send('ok');
   });
+
+  app.use('/', authRoutes);
+  app.use('/', materialsRoutes);
 
   return app;
 }
