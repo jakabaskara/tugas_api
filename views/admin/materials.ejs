@@ -6,10 +6,10 @@
 </head>
 <body>
   <%- include('../partials/nav') %>
-  <main style="max-width: 800px; margin: 48px auto;">
+  <main>
     <h1>Materi</h1>
     <%- include('../partials/flash') %>
-    <p><a href="/admin/materials/upload">Upload materi PDF</a></p>
+    <p><a class="button-link" href="/admin/materials/upload">Upload materi PDF</a></p>
 
     <% if (!rows.length) { %>
       <p>Belum ada materi.</p>
