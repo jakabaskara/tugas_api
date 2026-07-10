@@ -27,7 +27,7 @@ Aplikasi kuis berbasis Express, EJS, MongoDB, dan OpenAI untuk membuat 100 soal 
    ```bash
    PORT=3000
    MONGODB_URI=mongodb://127.0.0.1:27017/tugas_api
-   SESSION_SECRET=change-this-to-a-long-random-secret
+   SESSION_SECRET=change-me
    OPENAI_API_KEY=sk-...
    ADMIN_USERNAME=admin
    ADMIN_PASSWORD=admin123
