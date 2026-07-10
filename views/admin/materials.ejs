@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <%- include('../partials/head') %>
+  <title>Admin Materi - Quiz Materi AI</title>
+</head>
+<body>
+  <%- include('../partials/nav') %>
+  <main style="max-width: 800px; margin: 48px auto;">
+    <h1>Materi</h1>
+    <%- include('../partials/flash') %>
+    <p><a href="/admin/materials/upload">Upload materi PDF</a></p>
+
+    <% if (!rows.length) { %>
+      <p>Belum ada materi.</p>
+    <% } else { %>
+      <table>
+        <thead>
+          <tr>
+            <th>Judul</th>
+            <th>Status</th>
+            <th>Jumlah soal</th>
+            <th>File</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% rows.forEach(function(row) { %>
+            <tr>
+              <td><%= row.material.title %></td>
+              <td><span class="status status-<%= row.material.status %>"><%= row.material.status %></span></td>
+              <td><%= row.questionCount %> soal</td>
+              <td><%= row.material.filename %></td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    <% } %>
+  </main>
+</body>
+</html>

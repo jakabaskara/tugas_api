@@ -6,6 +6,8 @@ const flash = require('connect-flash');
 const config = require('./config');
 const authRoutes = require('./routes/auth');
 const materialsRoutes = require('./routes/materials');
+const adminRoutes = require('./routes/admin');
+const { requireAuth, requireAdmin } = require('./middleware/auth');
 
 function createApp() {
   const app = express();
@@ -38,6 +40,7 @@ function createApp() {
 
   app.use('/', authRoutes);
   app.use('/', materialsRoutes);
+  app.use('/admin', requireAuth, requireAdmin, adminRoutes);
 
   return app;
 }
