@@ -47,19 +47,17 @@ router.post('/materials/upload', upload.single('pdf'), async (req, res, next) =>
     return res.redirect('/admin/materials/upload');
   }
 
-  const material = new Material({
-    title,
-    filename: req.file.filename,
-    uploadedBy: req.session.user.id,
-    status: 'ready',
-  });
-  let materialCreated = false;
+  let material;
 
   try {
-    await material.save();
-    materialCreated = true;
     const text = await extractPdfText(await fs.promises.readFile(req.file.path));
     const questions = await generateQuestionsFromText(text);
+
+    material = new Material({
+      title,
+      filename: req.file.filename,
+      uploadedBy: req.session.user.id,
+    });
 
     await Question.insertMany(
       questions.map((question) => ({
@@ -70,16 +68,22 @@ router.post('/materials/upload', upload.single('pdf'), async (req, res, next) =>
 
     material.status = 'ready';
     await material.save();
+
     req.flash('success', 'Materi berhasil diupload dan soal berhasil dibuat');
     res.redirect('/admin/materials');
   } catch (err) {
-    if (materialCreated) {
-      try {
-        material.status = 'failed';
-        await material.save();
-      } catch (saveErr) {
-        return next(saveErr);
-      }
+    try {
+      const failedMaterial =
+        material ||
+        new Material({
+          title,
+          filename: req.file.filename,
+          uploadedBy: req.session.user.id,
+        });
+      failedMaterial.status = 'failed';
+      await failedMaterial.save();
+    } catch (saveErr) {
+      return next(saveErr);
     }
     req.flash('error', `Gagal memproses materi: ${err.message}`);
     res.redirect('/admin/materials/upload');
