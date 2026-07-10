@@ -19,7 +19,7 @@ const materialSchema = new mongoose.Schema(
     status: {
       type: String,
       enum: ['ready', 'failed'],
-      default: 'ready',
+      default: 'failed',
     },
   },
   { timestamps: true }

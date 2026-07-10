@@ -40,6 +40,16 @@ function createApp() {
     res.send('ok');
   });
 
+  app.get('/', (req, res) => {
+    if (!req.session.user) {
+      return res.redirect('/login');
+    }
+    if (req.session.user.role === 'admin') {
+      return res.redirect('/admin/materials');
+    }
+    res.redirect('/materials');
+  });
+
   app.use('/', authRoutes);
   app.use('/', materialsRoutes);
   app.use('/quiz', quizRoutes);

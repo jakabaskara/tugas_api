@@ -33,6 +33,8 @@ describe('Mongoose models', () => {
 
 describe('createApp', () => {
   it('uses MongoStore and exposes session user in locals', async () => {
+    process.env.SESSION_SECRET = 'test';
+
     const originalLoad = Module._load;
     let storeOptions;
 
@@ -49,6 +51,7 @@ describe('createApp', () => {
       return originalLoad.call(this, request, parent, isMain);
     };
 
+    delete require.cache[require.resolve('../src/config')];
     delete require.cache[require.resolve('../src/app')];
     const { createApp } = require('../src/app');
     const config = require('../src/config');

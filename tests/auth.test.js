@@ -6,8 +6,11 @@ const bcrypt = require('bcryptjs');
 
 const originalLoad = Module._load;
 
+process.env.SESSION_SECRET = 'test';
+
 afterEach(() => {
   Module._load = originalLoad;
+  delete require.cache[require.resolve('../src/config')];
   delete require.cache[require.resolve('../src/app')];
   delete require.cache[require.resolve('../src/routes/auth')];
   delete require.cache[require.resolve('../src/routes/materials')];

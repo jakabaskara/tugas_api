@@ -50,7 +50,7 @@ router.get('/reports', async (req, res, next) => {
     };
     const query = { status: 'submitted' };
 
-    if (filters.material) {
+    if (filters.material && mongoose.isValidObjectId(filters.material)) {
       query.materialId = filters.material;
     }
 
