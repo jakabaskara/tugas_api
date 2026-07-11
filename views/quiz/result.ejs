@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <%- include('../partials/head') %>
+  <title>Hasil Kuis - Quiz Materi AI</title>
+</head>
+<body>
+  <%- include('../partials/nav') %>
+  <main class="page-narrow text-center">
+    <h1>Hasil Kuis</h1>
+    <%- include('../partials/flash') %>
+
+    <section class="result-card">
+      <p><%= material ? material.title : 'Materi' %></p>
+      <strong class="score"><%= attempt.score %></strong>
+      <p>Benar: <%= attempt.correctCount %> &middot; Salah/kosong: <%= attempt.wrongCount %></p>
+      <% if (attempt.timedOut) { %>
+        <p>Waktu habis saat submit.</p>
+      <% } %>
+    </section>
+
+    <p>
+      <a href="/materials">Pilih materi lain</a>
+      &middot;
+      <a href="/reports/me">Lihat riwayat</a>
+    </p>
+  </main>
+</body>
+</html>

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <%- include('../partials/head') %>
+  <title>Upload Materi - Quiz Materi AI</title>
+</head>
+<body>
+  <%- include('../partials/nav') %>
+  <main class="page-form">
+    <h1>Upload Materi</h1>
+    <%- include('../partials/flash') %>
+    <p>Proses bisa 1&ndash;2 menit (AI generate 100 soal).</p>
+
+    <form action="/admin/materials/upload" method="post" enctype="multipart/form-data">
+      <label for="title">Judul</label>
+      <input id="title" name="title" type="text" required>
+
+      <label for="pdf">File PDF</label>
+      <input id="pdf" name="pdf" type="file" accept="application/pdf" required>
+
+      <button type="submit">Upload</button>
+    </form>
+    <p><a href="/admin/materials">Kembali ke daftar materi</a></p>
+  </main>
+</body>
+</html>

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <%- include('../partials/head') %>
+  <title>Materi - Quiz Materi AI</title>
+</head>
+<body>
+  <%- include('../partials/nav') %>
+  <main>
+    <h1>Pilih Materi</h1>
+    <%- include('../partials/flash') %>
+
+    <% if (!materials.length) { %>
+      <p>Belum ada materi yang siap dikerjakan.</p>
+    <% } else { %>
+      <div class="card-grid">
+        <% materials.forEach(function(material) { %>
+          <section class="card">
+            <h2><%= material.title %></h2>
+            <p>Status: <span class="status status-ready">ready</span></p>
+            <form action="/quiz/<%= material._id %>/start" method="post">
+              <button type="submit">Mulai kuis</button>
+            </form>
+          </section>
+        <% }); %>
+      </div>
+    <% } %>
+  </main>
+</body>
+</html>

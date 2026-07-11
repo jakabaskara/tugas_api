@@ -1,0 +1,20 @@
+<nav>
+  <a href="/">Quiz Materi AI</a>
+  <% if (!currentUser) { %>
+    <a href="/login">Login</a>
+    <a href="/register">Register</a>
+  <% } else if (currentUser.role === 'admin') { %>
+    <a href="/admin/materials">Materi admin</a>
+    <a href="/admin/materials/upload">Upload</a>
+    <a href="/admin/reports">Laporan</a>
+    <form class="nav-form" action="/logout" method="post">
+      <button class="nav-button" type="submit">Logout</button>
+    </form>
+  <% } else { %>
+    <a href="/materials">Materi</a>
+    <a href="/reports/me">Riwayat saya</a>
+    <form class="nav-form" action="/logout" method="post">
+      <button class="nav-button" type="submit">Logout</button>
+    </form>
+  <% } %>
+</nav>

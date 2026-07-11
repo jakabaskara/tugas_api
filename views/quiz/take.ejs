@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <%- include('../partials/head') %>
+  <title>Kerjakan Kuis - Quiz Materi AI</title>
+</head>
+<body>
+  <%- include('../partials/nav') %>
+  <main>
+    <div class="quiz-header">
+      <h1>Kerjakan Kuis</h1>
+      <strong class="timer-pill">Sisa waktu: <span id="timer">--:--</span></strong>
+    </div>
+    <%- include('../partials/flash') %>
+
+    <form id="quiz-form" action="/quiz/<%= attempt._id %>/submit" method="post">
+      <% questions.forEach(function(question, index) { %>
+        <fieldset class="question-card">
+          <legend><%= index + 1 %>. <%= question.text %></legend>
+          <% ['A', 'B', 'C', 'D'].forEach(function(choice) { %>
+            <label>
+              <input type="radio" name="answers[<%= index %>]" value="<%= choice %>">
+              <strong><%= choice %>.</strong> <%= question.options[choice] %>
+            </label>
+          <% }); %>
+        </fieldset>
+      <% }); %>
+      <button type="submit">Kirim jawaban</button>
+    </form>
+  </main>
+
+  <script>
+    const endsAt = new Date('<%= endsAt %>').getTime();
+    const timer = document.getElementById('timer');
+    const form = document.getElementById('quiz-form');
+    let submitted = false;
+
+    function tick() {
+      const left = Math.max(0, endsAt - Date.now());
+      const totalSeconds = Math.ceil(left / 1000);
+      const minutes = String(Math.floor(totalSeconds / 60)).padStart(2, '0');
+      const seconds = String(totalSeconds % 60).padStart(2, '0');
+      timer.textContent = minutes + ':' + seconds;
+
+      if (left === 0 && !submitted) {
+        submitted = true;
+        form.submit();
+        return;
+      }
+
+      setTimeout(tick, 250);
+    }
+
+    tick();
+  </script>
+</body>
+</html>

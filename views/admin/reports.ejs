@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <%- include('../partials/head') %>
+  <title>Laporan Kuis - Quiz Materi AI</title>
+</head>
+<body>
+  <%- include('../partials/nav') %>
+  <main class="page-wide">
+    <h1>Laporan Kuis</h1>
+    <%- include('../partials/flash') %>
+
+    <form action="/admin/reports" method="get">
+      <label>
+        User
+        <input type="text" name="user" value="<%= filters.user %>" placeholder="username atau userId">
+      </label>
+      <label>
+        Material
+        <input type="text" name="material" value="<%= filters.material %>" placeholder="materialId">
+      </label>
+      <button type="submit">Filter</button>
+      <a href="/admin/reports">Reset</a>
+    </form>
+
+    <% if (!attempts.length) { %>
+      <p>Belum ada attempt yang dikumpulkan.</p>
+    <% } else { %>
+      <table>
+        <thead>
+          <tr>
+            <th>User</th>
+            <th>Materi</th>
+            <th>Skor</th>
+            <th>Benar</th>
+            <th>Salah/kosong</th>
+            <th>Tanggal</th>
+            <th>Timeout</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% attempts.forEach(function(attempt) { %>
+            <tr>
+              <td><%= attempt.userId ? attempt.userId.username : 'User' %></td>
+              <td><%= attempt.materialId ? attempt.materialId.title : 'Materi' %></td>
+              <td><%= attempt.score %></td>
+              <td><%= attempt.correctCount %></td>
+              <td><%= attempt.wrongCount %></td>
+              <td><%= attempt.submittedAt ? attempt.submittedAt.toLocaleString('id-ID') : '-' %></td>
+              <td>
+                <% if (attempt.timedOut) { %>
+                  <span class="status status-failed">Timeout</span>
+                <% } else { %>
+                  <span class="status status-ready">Tepat waktu</span>
+                <% } %>
+              </td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    <% } %>
+  </main>
+</body>
+</html>
